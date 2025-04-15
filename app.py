@@ -99,7 +99,7 @@ def upload_to_notion(row_data):
                 "비고": {"rich_text": [{"text": {"content": str(row_data.get('비고', ''))}}]}
             }
         )
-        time.sleep(0.2)
+        time.sleep(0.5)
     except Exception as e:
         print(f"[Notion 업로드 실패] {e}")
 
