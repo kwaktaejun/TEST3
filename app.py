@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, send_file
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, PatternFill, Border, Side
@@ -77,12 +76,12 @@ def index():
 
     return render_template('index.html')
 
-
 # --- Notion 자동 업로드 기능 시작 ---
 
 from notion_client import Client
 import pandas as pd
 from flask import jsonify
+import time
 
 notion = Client(auth="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")
 
@@ -100,6 +99,7 @@ def upload_to_notion(row_data):
                 "비고": {"rich_text": [{"text": {"content": str(row_data.get('비고', ''))}}]}
             }
         )
+        time.sleep(0.2)
     except Exception as e:
         print(f"[Notion 업로드 실패] {e}")
 
