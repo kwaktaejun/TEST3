@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마스터시트 데이터 입력</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>📄 마스터시트 데이터 입력</h1>
+
+    <form method="POST" onsubmit="return prepareSubmission();">
+        <label>📁 엑셀 업로드:
+            <input type="file" id="excelFile" accept=".xlsx">
+            
+    <button type="button" onclick="uploadExcel()">📤 엑셀 데이터 삽입</button>
+    <a href="/static/작업용_품목추가.xlsx" download>
+        <button type="button">📄 양식 다운로드</button>
+    </a>
+    
+        </label>
+        <br><br>
+
+        <label>📌 업로드 메모:
+            <textarea name="memo" rows="2" style="width: 100%; margin: 10px 0;" placeholder="이번 업로드 회차에 대한 간단한 메모를 입력하세요"></textarea>
+        </label>
+
+        <table id="inputTable">
+            <thead>
+                <tr>
+                    <th>구분</th><th>계약여부</th><th>식별번호</th><th>계약금액</th><th>제품모델명</th><th>품명</th>
+                    <th>모델명</th><th>규격</th><th>수량</th><th>원산지</th><th>구성종류</th>
+                    <th>제품원가</th><th>원천제조사</th><th>수익률</th><th>비고</th><th>메모</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="example-row" contenteditable="false">
+                    <td>주자재</td><td>O</td><td>24061854</td><td>1,999,000</td><td>EX03B</td><td>보안용카메라</td>
+                    <td>CRE-CW21281ZUR</td><td>Bullet Type, 2M, IR</td><td>1</td><td>대한민국</td><td>구성품</td>
+                    <td>0</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                </tr>
+                <tr class="example-row" contenteditable="false">
+                    <td>옵션품목</td><td></td><td>23411255</td><td>904,000</td><td>CRE-D212812R</td><td>보안용카메라</td>
+                    <td>-</td><td>Dome type, 2M | 한화(시큐인포)</td><td>1</td><td>크리에이티브넷</td><td>단품</td>
+                    <td>451,000</td><td>한화</td><td>5.11</td><td>-</td><td>-</td>
+                </tr>
+                <tr>
+                    <td colspan="16"><button type="button" onclick="addRow()">➕ 행 추가</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <input type="hidden" name="tableData" id="tableData">
+        <button type="submit">📥 엑셀로 다운로드</button>
+    </form>
+
+<hr>
+<h4>📤 엑셀 업로드 후 Notion 자동 전송</h4>
+<form action="/upload_excel_notion" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xls,.xlsx" required>
+    <button type="submit">Notion 업로드</button>
+</form>
+
+</body>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script>
+function uploadExcel() {
+    const fileInput = document.getElementById("excelFile");
+    const file = fileInput.files[0];
+    if (!file) return alert("엑셀 파일을 선택하세요.");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        for (let i = 1; i < rows.length; i++) {
+            let row = rows[i];
+            let table = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+            let newRow = table.insertRow(table.rows.length - 1);
+            for (let j = 0; j < 16; j++) {
+                let cell = newRow.insertCell(j);
+                cell.contentEditable = "true";
+                cell.innerText = row[j] || "";
+            }
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function addRow() {
+    let table = document.getElementById("inputTable").getElementsByTagName('tbody')[0];
+    let row = table.insertRow(table.rows.length - 1);
+    for (let i = 0; i < 16; i++) {
+        let cell = row.insertCell(i);
+        cell.contentEditable = "true";
+    }
+}
+
+function prepareSubmission() {
+    const rows = document.querySelectorAll("#inputTable tbody tr");
+    let output = "";
+    rows.forEach((row, idx) => {
+        if (row.querySelector("td")) {
+            const cells = row.querySelectorAll("td");
+            if (cells.length === 16) {
+                const line = Array.from(cells).map(td => td.innerText.trim()).join("\t");
+                output += line + "\n";
+            }
+        }
+    });
+    document.getElementById("tableData").value = output;
+    return true;
+}
+</script>
+</html>

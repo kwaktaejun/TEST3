@@ -1,0 +1,32 @@
+
+body {
+    font-family: '맑은 고딕', sans-serif;
+    padding: 20px;
+    background-color: #f7f7f7;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+td[contenteditable="true"] {
+    background-color: #fefefe;
+    min-width: 100px;
+    height: 32px;
+    padding: 4px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+td[contenteditable="true"]:hover {
+    outline: 2px solid #3b82f6;
+    background-color: #f0f9ff;
+}
+.example-row {
+    background-color: #f0f0f0;
+    font-style: italic;
+}
